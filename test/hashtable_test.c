@@ -272,7 +272,13 @@ void hashtable_collision_test(void)
         assert(ht->records[index2]->value == val);
 
         assert(ht->collisionList[index2] != NULL);
-        // @todo verify adding to handling list
+
+        Record* rec2 = (Record*)ht->collisionList[index2]->data;
+        NodeList* next = ht->collisionList[index2]->next;
+
+        assert(rec2->key == key2);
+        assert(rec2->value == val2);
+        assert(next == NULL);
 
         hashTable_delete(ht);
     }
