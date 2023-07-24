@@ -2,12 +2,14 @@
 #include <nodelist.c>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 void hashtable_record_new_test(void);
 void hashtable_new_test(void);
 void hashtable_insert_test(void);
 void hashtable_hash_function_test(void);
 void hashtable_collision_test(void);
+void hashtable_search_test(void);
 
 void hashtable_record_new_test(void)
 {
@@ -45,8 +47,8 @@ void hashtable_record_new_test(void)
         Record* record = record_new(key, val);
 
         assert(record != NULL);
-        assert(record->key == key);
-        assert(record->value == val);
+        assert(strcmp(record->key, key) == 0);
+        assert(strcmp(record->value, val) == 0);
 
         record_delete(record);
     }
@@ -148,8 +150,8 @@ void hashtable_insert_test(void)
         assert(ht->size == table_size);
         assert(ht->noOfElems == 1);
         assert(ht->records[0] != NULL);
-        assert(ht->records[0]->key == key);
-        assert(ht->records[0]->value == val);
+        assert(strcmp(ht->records[0]->key, key) == 0);
+        assert(strcmp(ht->records[0]->value, val) == 0);
         assert(ht->collisionList[0] == NULL);
 
         hashTable_delete(ht);
@@ -158,6 +160,7 @@ void hashtable_insert_test(void)
     // check correct insertion of two elements
     {
         size_t table_size = 10;
+        size_t index = 0;
         const char* key = "keyOne";
         const char* val = "valOne";
         const char* key2 = "keyTwo";
@@ -169,16 +172,21 @@ void hashtable_insert_test(void)
         assert(ht->noOfElems == 0);
 
         hashTable_insert(ht, key, val);
-
+        index = hash_function(key, ht->size);
         assert(ht != NULL);
         assert(ht->size == table_size);
         assert(ht->noOfElems == 1);
+        assert(strcmp(ht->records[index]->key, key) == 0);
+        assert(strcmp(ht->records[index]->value, val) == 0);
     
         hashTable_insert(ht, key2, val2);
+        index = hash_function(key2, ht->size);
 
         assert(ht != NULL);
         assert(ht->size == table_size);
         assert(ht->noOfElems == 2);
+        assert(strcmp(ht->records[index]->key, key2) == 0);
+        assert(strcmp(ht->records[index]->value, val2) == 0);
 
         hashTable_delete(ht);
     }
@@ -206,22 +214,22 @@ void hashtable_hash_function_test(void)
 
         index = hash_function(key, ht->size);
         assert(ht->records[index] != NULL);
-        assert(ht->records[index]->key == key);
-        assert(ht->records[index]->value == val);
+        assert(strcmp(ht->records[index]->key, key) == 0);
+        assert(strcmp(ht->records[index]->value, val) == 0);
     
         hashTable_insert(ht, key2, val2);
 
         index = hash_function(key2, ht->size);
         assert(ht->records[index] != NULL);
-        assert(ht->records[index]->key == key2);
-        assert(ht->records[index]->value == val2);
+        assert(strcmp(ht->records[index]->key, key2) == 0);
+        assert(strcmp(ht->records[index]->value, val2) == 0);
 
         hashTable_insert(ht, key3, val3);
 
         index = hash_function(key3, ht->size);
         assert(ht->records[index] != NULL);
-        assert(ht->records[index]->key == key3);
-        assert(ht->records[index]->value == val3);
+        assert(strcmp(ht->records[index]->key, key3) == 0);
+        assert(strcmp(ht->records[index]->value, val3) == 0);
 
         hashTable_delete(ht);        
     }
@@ -255,8 +263,8 @@ void hashtable_collision_test(void)
         assert(ht->noOfElems == 1);
         index = hash_function(key, ht->size);
         assert(ht->records[index] != NULL);
-        assert(ht->records[index]->key == key);
-        assert(ht->records[index]->value == val);
+        assert(strcmp(ht->records[index]->key, key) == 0);
+        assert(strcmp(ht->records[index]->value, val) == 0);
         assert(ht->collisionList[0] == NULL);
         assert(ht->collisionList[1] == NULL);
 
@@ -266,20 +274,53 @@ void hashtable_collision_test(void)
         assert(ht->size == table_size);
         assert(ht->noOfElems == 2);
         index2 = hash_function(key2, ht->size);
+
+        // if hash function gives the same index it indicates the collision
         assert(index == index2);
         assert(ht->records[index2] != NULL);
-        assert(ht->records[index2]->key == key);
-        assert(ht->records[index2]->value == val);
+
+        // Previously written data should not be changed
+        assert(strcmp(ht->records[index2]->key, key) == 0);
+        assert(strcmp(ht->records[index2]->value, val) == 0);
 
         assert(ht->collisionList[index2] != NULL);
+
 
         Record* rec2 = (Record*)ht->collisionList[index2]->data;
         NodeList* next = ht->collisionList[index2]->next;
 
-        assert(rec2->key == key2);
-        assert(rec2->value == val2);
+        // New set of data should be added to collision list
+        assert(rec2 != NULL);
+        assert(strcmp(rec2->key, key2) == 0);
+        assert(strcmp(rec2->value, val2) == 0);
         assert(next == NULL);
 
         hashTable_delete(ht);
     }
+}
+
+void hashtable_search_test(void)
+{
+    {
+        size_t table_size = 10;
+        const char* key = "keyOne";
+        const char* val = "valOne";
+        const char* key2 = "keyTwo";
+        const char* val2 = "valTwo";
+        HashTable* ht = hashTable_new(table_size);
+
+        hashTable_insert(ht, key, val);
+        hashTable_insert(ht, key2, val2);
+
+        char* val_searched = hashTable_search(ht, key);
+        char* val2_searched = hashTable_search(ht, key2);
+
+        assert(val == val_searched);
+        assert(val2 == val2_searched);
+        assert(strcmp(val, val_searched) == 0);
+        assert(strcmp(val2, val2_searched) == 0);
+
+        hashTable_delete(ht);
+    }
+
 }

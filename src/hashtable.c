@@ -210,13 +210,19 @@ char* hashTable_search(HashTable* hashTable, const char* key)
         return NULL;
     }
 
-    return (char*) hashTable->records[index]->value;
+    if (strcmp(hashTable->records[index]->key, key) == 0)
+    {
+        return (char*) hashTable->records[index]->value;
+    }
+    else // collision case
+    {
+        Record* record = (Record*)hashTable->collisionList[index]->data;
+        return (char*) record->value;
+    }
 }
 
 static void handle_collision(HashTable* hashTable, size_t index, Record* record)
 {
-    printf("handle_collision() called\n");
-
     if (hashTable == NULL || record == NULL)
     {
         return;
