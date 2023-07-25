@@ -154,6 +154,12 @@ void hashTable_insert(HashTable* hashTable, const char* key, const char* value)
         return;
     }
 
+    // hashTable is full
+    if (hashTable->size == hashTable->noOfElems)
+    {
+        return;
+    }
+
     Record* record = record_new(key, value);
     if (record == NULL)
     {
@@ -164,13 +170,6 @@ void hashTable_insert(HashTable* hashTable, const char* key, const char* value)
 
     if (hashTable->records[index] == NULL)
     {
-        // hashTable is full
-        if (hashTable->size == hashTable->noOfElems)
-        {
-            record_delete(record);
-            return;
-        }
-
         // insert new record to hashTable
         hashTable->records[index] = record;
         hashTable->noOfElems++;
@@ -241,5 +240,6 @@ static void handle_collision(HashTable* hashTable, size_t index, Record* record)
 
     // Insert to the list.
     nodeList_insert(&head, record);
+    hashTable->collisionList[index] = head;
 }
 
