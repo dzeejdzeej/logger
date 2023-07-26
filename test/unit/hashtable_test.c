@@ -413,10 +413,25 @@ void hashtable_collision_test(void)
     }
 }
 
+// Test function: static size_t hashTable_search(const char* key, size_t hashTableSize);
 void hashtable_search_test(void)
 {
+    // Give search function incorrect key
     {
         const size_t table_size = 10;
+        const char* keyNotUsed = "uselessKey";
+        HashTable* ht = hashTable_new(table_size);
+
+        char* val_searched = hashTable_search(ht, keyNotUsed);
+
+        assert(val_searched == NULL);
+
+        hashTable_delete(ht);
+    }
+
+    // Search two values in 20-element hashtable
+    {
+        const size_t table_size = 20;
         const char* key = "keyOne";
         const char* val = "valOne";
         const char* key2 = "keyTwo";
@@ -429,10 +444,70 @@ void hashtable_search_test(void)
         char* val_searched = hashTable_search(ht, key);
         char* val2_searched = hashTable_search(ht, key2);
 
-        assert(val == val_searched);
-        assert(val2 == val2_searched);
         assert(strcmp(val, val_searched) == 0);
         assert(strcmp(val2, val2_searched) == 0);
+
+        hashTable_delete(ht);
+    }
+
+    // Search 3 values from keys which have collision
+    {
+        const size_t table_size = 3;
+        const char* key = "keyOne";
+        const char* val = "valOne";
+        const char* key2 = "keyTwo";
+        const char* val2 = "valTwo";
+        const char* key3 = "keyThr";
+        const char* val3 = "valThr";
+        size_t index = 3;
+        size_t index2 = 5;
+        size_t index3 = 0;
+        char* val_searched = NULL;
+        char* val2_searched = NULL;
+        char* val3_searched = NULL;
+        HashTable* ht = hashTable_new(table_size);
+
+        // Add first element
+        hashTable_insert(ht, key, val);
+        index = hash_function(key, ht->size);
+
+        // Search first value
+        val_searched = hashTable_search(ht, key);
+        assert(strcmp(val, val_searched) == 0);
+
+        // Add second element
+        hashTable_insert(ht, key2, val2);
+        index2 = hash_function(key2, ht->size);
+
+        // Confirm that we have collision despites of using different keys
+        assert(index == index2);
+        assert(ht->records[index2] != NULL);
+        assert(ht->noOfElems == 2);
+
+        // Search second value
+        val2_searched = hashTable_search(ht, key2);
+        assert(strcmp(val2, val2_searched) == 0);
+
+        // Add third element
+        hashTable_insert(ht, key3, val3);
+        index3 = hash_function(key3, ht->size);
+
+        // Confirm that we have collision despites of using different keys
+        assert(index2 == index3);
+        assert(ht->records[index3] != NULL);
+        assert(ht->noOfElems == 3);
+
+        // Search third value
+        val3_searched = hashTable_search(ht, key3);
+        assert(strcmp(val3, val3_searched) == 0);
+
+        // Once again search each element to check if moving data in node list doesn't impacted the result
+        val_searched = hashTable_search(ht, key);
+        val2_searched = hashTable_search(ht, key2);
+        val3_searched = hashTable_search(ht, key3);
+        assert(strcmp(val, val_searched) == 0);
+        assert(strcmp(val2, val2_searched) == 0);
+        assert(strcmp(val3, val3_searched) == 0);
 
         hashTable_delete(ht);
     }

@@ -215,8 +215,18 @@ char* hashTable_search(HashTable* hashTable, const char* key)
     }
     else // collision case
     {
-        Record* record = (Record*)hashTable->collisionList[index]->data;
-        return (char*) record->value;
+        NodeList* head = hashTable->collisionList[index];
+        Record* record = NULL;
+        while (head != NULL)
+        {
+            record = head->data;
+            if (strcmp(record->key, key) == 0)
+            {
+                return (char*) record->value;
+            }
+            head = head->next;
+        }
+        return NULL;
     }
 }
 

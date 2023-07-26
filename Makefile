@@ -47,14 +47,29 @@ all:
 
 .PHONY: test
 test:
-	$(QUIET) $(CC) $(C_FLAGS) -ggdb3 -O0 -Wl,-allow-multiple-definition src/*.c test/*.c -I./include -I./src -o test.out
+	$(QUIET)$(MAKE) unit_test --no-print-directory
+	$(QUIET)$(MAKE) mocks_test --no-print-directory
+	
+.PHONY: test_run
+test_run:
+	./unit_test.out
+	./mocks_test.out
+	
+.PHONY: unit_tests
+unit_test:
+	$(QUIET) $(CC) $(C_FLAGS) -ggdb3 -O0 -Wl,-allow-multiple-definition src/*.c test/unit/*.c -I./include -I./src -o unit_test.out
+	
+.PHONY: mocks_test
+mocks_test:
+	$(QUIET) $(CC) $(C_FLAGS) -ggdb3 -O0 -Wl,-allow-multiple-definition src/*.c test/mocks/*.c -I./include -I./src -o mocks_test.out
 
 .PHONY: memcheck
 memcheck:
 	$(QUIET)$(MAKE) test --no-print-directory
-	$(QUIET)$(VALGRIND_MEMCHECK) ./test.out
+	$(QUIET)$(VALGRIND_MEMCHECK) ./unit_test.out
+	$(QUIET)$(VALGRIND_MEMCHECK) ./mocks_test.out
 
 .PHONY: clean
 clean: 
-	$(QUIET) $(RM) main.out test.out
+	$(QUIET) $(RM) *.out
 
