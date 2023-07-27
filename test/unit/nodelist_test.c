@@ -6,6 +6,7 @@ void nodeList_new_test(void);
 void nodeList_insert_test(void);
 
 
+// Test function: NodeList* nodeList_new(void* data);
 void nodeList_new_test(void)
 {
     // pass NULL pointer as an argument to constructor
@@ -29,6 +30,7 @@ void nodeList_new_test(void)
     }
 }
 
+// Test function: void nodeList_insert(NodeList** head, void* data);
 void nodeList_insert_test(void)
 {
     // incorrect insert, NULL head as an argument, head should remain NULL
