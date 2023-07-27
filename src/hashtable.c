@@ -84,12 +84,6 @@ HashTable* hashTable_new(size_t size)
         return NULL;
     }
 
-    for (size_t i = 0; i < hashTable->size; ++i)
-    {
-        hashTable->records[i] = NULL;
-        hashTable->collisionList[i] = NULL;
-    }
-
     return hashTable;
 }
 

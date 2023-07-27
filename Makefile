@@ -61,7 +61,7 @@ unit_test:
 	
 .PHONY: mocks_test
 mocks_test:
-	$(QUIET) $(CC) $(C_FLAGS) -ggdb3 -O0 -Wl,-allow-multiple-definition src/*.c test/mocks/*.c -I./include -I./src -o mocks_test.out
+	$(QUIET) $(CC) $(C_FLAGS) -ggdb3 -O0 test/mocks/*.c -I./include -I./src -o mocks_test.out
 
 .PHONY: memcheck
 memcheck:
