@@ -129,15 +129,24 @@ void hashTable_print(HashTable* hashTable)
 
     for (size_t i = 0; i < hashTable->size; i++)
     {
-        if (hashTable->records[i] == NULL)
+        if (hashTable->records[i] != NULL)
         {
-            continue;
+            printf("Index=%lu\tKey: %s, Value: %s\n",
+                    i, 
+                    hashTable->records[i]->key,
+                    hashTable->records[i]->value);
         }
-        
-        printf("Index=%lu, key=%s, value=%s\n",
-                i, 
-                hashTable->records[i]->key,
-                hashTable->records[i]->value);
+
+        if (hashTable->collisionList[i] != NULL)
+        {
+            NodeList* current = hashTable->collisionList[i];
+            while (current != NULL)
+            {
+                Record* rec = (Record*)current->data;
+                printf("\tKey: %s, Value: %s\n", rec->key, rec->value);
+                current = current->next;
+            }
+        }
     }
 }
 
@@ -181,6 +190,71 @@ void hashTable_insert(HashTable* hashTable, const char* key, const char* value)
             handle_collision(hashTable, index, record);
             hashTable->noOfElems++;
         }
+    }
+}
+
+void hashTable_delete_record(HashTable* hashTable, const char* key)
+{
+    if (hashTable == NULL || key == NULL || hashTable->noOfElems < 1)
+    {
+        return;
+    }
+
+    const size_t index = hash_function(key, hashTable->size);
+    if (hashTable->records[index] == NULL)
+    {
+        return;
+    }
+
+    // Record with given key has been found in the main hashtable records array
+    if (strcmp(hashTable->records[index]->key, key) == 0)
+    {
+        record_delete(hashTable->records[index]);
+        hashTable->records[index] = NULL;
+        hashTable->noOfElems--;
+        return;
+    }
+    // Index generated from key exists, but the key doesn't match.
+    // Check if we have a collision list.
+    else if (hashTable->collisionList[index] != NULL)
+    {
+        NodeList* head = hashTable->collisionList[index];
+        NodeList* current = head;
+        Record* record = current->data;
+
+        // Search until the element is found or the list ends
+        while (current != NULL && strcmp(record->key, key) != 0)
+        {
+            current = current->next;
+            if (current != NULL)
+            {
+                record = current->data;
+            }
+        }
+
+        // Element not found
+        if (current == NULL)
+        {
+            return;
+        }
+        // If deleted element is the head of the list
+        else if (current == head)
+        {
+            hashTable->collisionList[index] = current->next;
+            nodeList_node_delete(&head, record);
+            hashTable->noOfElems--;
+        }
+        // If deleted element is not the head of the list
+        else
+        {
+            nodeList_node_delete(&head, record);
+            hashTable->noOfElems--;
+        }
+    }
+    // Key not found
+    else
+    {
+        return;
     }
 }
 

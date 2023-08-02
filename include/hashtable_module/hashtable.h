@@ -27,6 +27,7 @@ void hashTable_delete(HashTable* hashTable);
 
 void hashTable_print(HashTable* hashTable);
 void hashTable_insert(HashTable* hashTable, const char* key, const char* value);
+void hashTable_delete_record(HashTable* hashTable, const char* key);
 char* hashTable_search(HashTable* hashTable, const char* key);
 
 #endif // HASHTABLE_H

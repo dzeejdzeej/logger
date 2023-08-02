@@ -63,6 +63,45 @@ void nodeList_insert(NodeList** head, void* data)
     *head = newNode;
 }
 
+void nodeList_node_delete(NodeList** head, void* data)
+{
+    if (*head == NULL || data == NULL)
+    {
+        return;
+    }
+
+    NodeList* currentNode = *head;
+    NodeList* previousNode = NULL;
+    
+    // Define searched node as a currentNode and specify previousNode
+    while (currentNode != NULL && currentNode->data != data)
+    {
+        previousNode = currentNode;
+        currentNode = currentNode->next;
+    }
+
+    // Can't find that node
+    if (currentNode == NULL)
+    {
+        return;
+    }
+
+    // Case when searched element is the head
+    if (previousNode == NULL)
+    {
+        *head = currentNode->next;
+    }
+    // Case when searched element is not the head
+    else
+    {
+        previousNode->next = currentNode->next;
+    }
+
+    free(currentNode->data);
+    free(currentNode);
+    currentNode = NULL;
+}
+
 /*
 void nodeList_printNodes(NodeList* head)
 {

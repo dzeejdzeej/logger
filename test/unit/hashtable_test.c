@@ -7,6 +7,7 @@
 void hashtable_record_new_test(void);
 void hashtable_new_test(void);
 void hashtable_insert_test(void);
+void hashtable_delete_record_test(void);
 void hashtable_hash_function_test(void);
 void hashtable_collision_test(void);
 void hashtable_search_test(void);
@@ -211,10 +212,219 @@ void hashtable_insert_test(void)
     }
 }
 
+// Test function: void hashTable_delete_record(HashTable* hashTable, const char* key)
+void hashtable_delete_record_test(void)
+{
+    // Incorrect try of delete record - empty table
+    {
+        const size_t table_size = 10;
+        HashTable* ht = hashTable_new(table_size);
+
+        assert(ht->noOfElems == 0);
+
+        hashTable_delete_record(ht, "key");
+
+        assert(ht->noOfElems == 0);
+
+        hashTable_delete(ht);
+    }
+
+    // Incorrect try of delete record - wrong key
+    {
+        const size_t table_size = 10;
+        const char* key = "keyOne";
+        const char* val = "valOne";
+
+        HashTable* ht = hashTable_new(table_size);
+        hashTable_insert(ht, key, val);
+
+        const size_t index = hash_function(key, ht->size);
+
+        // Check if element has been added to hash table
+        assert(ht->noOfElems == 1);
+        assert(ht->records[index] != NULL);
+        assert(strcmp(ht->records[index]->key, key) == 0);
+        assert(strcmp(ht->records[index]->value, val) == 0);
+
+        hashTable_delete_record(ht, "key");
+
+        // All stats should remain the same
+        assert(ht->noOfElems == 1);
+        assert(ht->records[index] != NULL);
+        assert(strcmp(ht->records[index]->key, key) == 0);
+        assert(strcmp(ht->records[index]->value, val) == 0);
+
+        hashTable_delete(ht);
+    }
+
+    // Check correct deletion of one element
+    {
+        const size_t table_size = 10;
+        const char* key = "keyOne";
+        const char* val = "valOne";
+
+        HashTable* ht = hashTable_new(table_size);
+        hashTable_insert(ht, key, val);
+
+        const size_t index = hash_function(key, ht->size);
+
+        // Check if element has been added to hash table
+        assert(ht->noOfElems == 1);
+        assert(ht->records[index] != NULL);
+        assert(strcmp(ht->records[index]->key, key) == 0);
+        assert(strcmp(ht->records[index]->value, val) == 0);
+
+        hashTable_delete_record(ht, key);
+        assert(ht->noOfElems == 0);
+        assert(ht->records[index] == NULL);
+
+        hashTable_delete(ht);
+    }
+
+    // Add 3 records to 20-elemets hashTable and then delete on of them
+    {
+        const size_t table_size = 20;
+        const char* key = "keyOne";
+        const char* val = "valOne";
+        const char* key2 = "keyTwo";
+        const char* val2 = "valTwo";
+        const char* key3 = "keyThree";
+        const char* val3 = "valThree";
+
+        HashTable* ht = hashTable_new(table_size);
+
+        const size_t index  = hash_function(key, ht->size);
+        const size_t index2 = hash_function(key2, ht->size);
+        const size_t index3 = hash_function(key3, ht->size);
+
+        hashTable_insert(ht, key, val);
+        hashTable_insert(ht, key2, val2);
+        hashTable_insert(ht, key3, val3);
+
+        // Confirm there is no collisions
+        assert(index != index2);
+        assert(index2 != index3);
+
+        // Go through records array and check if proper records has been assigned
+        for (size_t i = 0; i < table_size; ++i)
+        {
+            if (i != index && i != index2 && i != index3)
+            {
+                assert(ht->records[i] == NULL);
+            }
+            else
+            {
+                assert(ht->records[i] != NULL);
+            }
+        }
+
+        hashTable_delete_record(ht, key2);        
+
+        // Again go through records array and check if proper records has been deleted
+        for (size_t i = 0; i < table_size; ++i)
+        {
+            if (i != index && i != index3)
+            {
+                assert(ht->records[i] == NULL);
+            }
+            else
+            {
+                assert(ht->records[i] != NULL);
+            }
+        }
+
+        hashTable_delete(ht);        
+    }
+
+    // Delete elements from collision node list
+    {
+        const size_t table_size = 3;
+        const char* key = "keyOne";
+        const char* val = "valOne";
+        const char* key2 = "keyTwo";
+        const char* val2 = "valTwo";
+        const char* key3 = "keyThr";
+        const char* val3 = "valThr";
+        HashTable* ht = hashTable_new(table_size);
+
+        const size_t index = hash_function(key, ht->size);;
+        const size_t index2 = hash_function(key2, ht->size);;
+        const size_t index3 = hash_function(key3, ht->size);;
+
+        hashTable_insert(ht, key, val);
+        hashTable_insert(ht, key2, val2);
+        hashTable_insert(ht, key3, val3);
+
+        assert(ht->records[index] != NULL);
+        assert(ht->records[index2] != NULL);
+        assert(ht->records[index3] != NULL);
+
+        // Confirm that we have collision despites of using different keys
+        assert(index == index2);
+        assert(index2 == index3);
+
+        // Three elements inserted despite of same indexes
+        assert(ht->noOfElems == 3);
+
+        // Collision list should be created
+        assert(ht->collisionList[index] != NULL);
+
+        // Firstly written data should not be changed
+        assert(strcmp(ht->records[index]->key, key) == 0);
+        assert(strcmp(ht->records[index]->value, val) == 0);
+
+        // New set of data should be added to start of collision list
+        NodeList* head = ht->collisionList[index];
+        Record* rec3 = (Record*)head->data;
+        assert(rec3 != NULL);
+        assert(strcmp(rec3->key, key3) == 0);
+        assert(strcmp(rec3->value, val3) == 0);
+
+        // Previous data should be accessable through new data
+        assert(head->next != NULL);
+        Record* rec2 = (Record*)head->next->data;
+        assert(rec2 != NULL);
+        assert(strcmp(rec2->key, key2) == 0);
+        assert(strcmp(rec2->value, val2) == 0);
+        assert(head->next->next == NULL);
+
+        // Delete current node which stores data for key3
+        hashTable_delete_record(ht, key3);
+    
+        // New head and its record should equals the values of rec2, since previous head (rec3) was deleted
+        NodeList* headNew = ht->collisionList[index];
+        Record* recNew = (Record*)headNew->data;
+        assert(recNew == rec2);
+        assert(strcmp(recNew->key, key2) == 0);
+        assert(strcmp(recNew->value, val2) == 0);
+
+        // New head should not have next element
+        assert(headNew->next == NULL);
+
+        // Number of elements should decrese by 1
+        assert(ht->noOfElems == 2);
+
+        // Delete last element of collision list
+        hashTable_delete_record(ht, key2);
+
+        // After that collision list should not exist
+        assert(ht->collisionList[index] == NULL);
+
+        // Number of elements should decrese by 1
+        assert(ht->noOfElems == 1);
+
+        // Firstly written data should not be changed
+        assert(strcmp(ht->records[index]->key, key) == 0);
+        assert(strcmp(ht->records[index]->value, val) == 0);
+
+        hashTable_delete(ht);
+    }
+}
+
 // Test function: static size_t hash_function(const char* key, size_t hashTableSize);
 void hashtable_hash_function_test(void)
 {
-    // Add 3 records to 50-elemets hashTable ande verify if hashFunction returns the proper index
+    // Add 3 records to 50-elemets hashTable and verify if hashFunction returns the proper index
     {
         const size_t table_size = 50;
         const char* key = "keyOne";
@@ -223,15 +433,16 @@ void hashtable_hash_function_test(void)
         const char* val2 = "valTwo";
         const char* key3 = "keyThree";
         const char* val3 = "valThree";
-        HashTable* ht = hashTable_new(table_size);
 
-        hashTable_insert(ht, key, val);
-        hashTable_insert(ht, key2, val2);
-        hashTable_insert(ht, key3, val3);
+        HashTable* ht = hashTable_new(table_size);
 
         const size_t index  = hash_function(key, ht->size);
         const size_t index2 = hash_function(key2, ht->size);
         const size_t index3 = hash_function(key3, ht->size);
+
+        hashTable_insert(ht, key, val);
+        hashTable_insert(ht, key2, val2);
+        hashTable_insert(ht, key3, val3);
 
         // Confirm there is no collisions
         assert(index != index2);

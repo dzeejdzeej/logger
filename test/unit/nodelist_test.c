@@ -1,9 +1,11 @@
 #include <hashtable.c>
 #include <nodelist.c>
 #include <assert.h>
+#include <stdio.h>
 
 void nodeList_new_test(void);
 void nodeList_insert_test(void);
+void nodeList_node_delete_test(void);
 
 
 // Test function: NodeList* nodeList_new(void* data);
@@ -93,3 +95,94 @@ void nodeList_insert_test(void)
     }
 }
 
+// Test function: void nodeList_node_delete(NodeList** head, void* data)
+void nodeList_node_delete_test(void)
+{
+    // Delete firstly added node out of three
+    {
+        Record* record1 = record_new("key1", "val1");
+        Record* record2 = record_new("key2", "val2");
+        Record* record3 = record_new("key3", "val3");
+
+        NodeList* head = nodeList_new(record1);
+        NodeList* node1 = head;
+
+        nodeList_insert(&head, record2);
+        NodeList* node2 = head;
+
+        nodeList_insert(&head, record3);
+        NodeList* node3 = head;
+
+        assert(head == node3);
+        assert(node3->next == node2);
+        assert(node2->next == node1);
+        assert(node1->next == NULL);
+
+        nodeList_node_delete(&head, record1);
+
+        assert(head == node3);
+        assert(node3->next == node2);
+        assert(node2->next == NULL);
+
+        nodeList_delete(&head);
+    }
+
+    // Delete secondly added node out of three
+    {
+        Record* record1 = record_new("key1", "val1");
+        Record* record2 = record_new("key2", "val2");
+        Record* record3 = record_new("key3", "val3");
+
+        NodeList* head = nodeList_new(record1);
+        NodeList* node1 = head;
+
+        nodeList_insert(&head, record2);
+        NodeList* node2 = head;
+
+        nodeList_insert(&head, record3);
+        NodeList* node3 = head;
+
+        assert(head == node3);
+        assert(node3->next == node2);
+        assert(node2->next == node1);
+        assert(node1->next == NULL);
+
+        nodeList_node_delete(&head, record2);
+
+        assert(head == node3);
+        assert(node3->next == node1);
+        assert(node1->next == NULL);
+
+        nodeList_delete(&head);
+    }
+
+    // Delete last added node (actually a head) out of three
+    {
+        Record* record1 = record_new("key1", "val1");
+        Record* record2 = record_new("key2", "val2");
+        Record* record3 = record_new("key3", "val3");
+
+        NodeList* head = nodeList_new(record1);
+        NodeList* node1 = head;
+
+        nodeList_insert(&head, record2);
+        NodeList* node2 = head;
+
+        nodeList_insert(&head, record3);
+        NodeList* node3 = head;
+
+        assert(head == node3);
+        assert(node3->next == node2);
+        assert(node2->next == node1);
+        assert(node1->next == NULL);
+
+        nodeList_node_delete(&head, record3);
+
+        assert(head == node2);
+        assert(node2->next == node1);
+        assert(node1->next == NULL);
+
+        nodeList_delete(&head);
+    }
+
+}
