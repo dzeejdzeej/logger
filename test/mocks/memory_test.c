@@ -46,8 +46,8 @@ void hashtable_record_new_test(void)
     {
         mock_params.malloc_null = true;
         mock_params.calloc_null = false;
-        const char* key = "exampKey";
-        const char* val = "someValue";
+        register const char* key = "exampKey";
+        register const char* val = "someValue";
         Record* record = record_new(key, val);
 
         assert(record == NULL);
@@ -62,7 +62,7 @@ void hashtable_new_test(void)
     {
         mock_params.malloc_null = true;
         mock_params.calloc_null = false;
-        const size_t table_size = 5;
+        register const size_t table_size = 5;
         HashTable* hashTable = hashTable_new(table_size);
 
         assert(hashTable == NULL);
@@ -72,7 +72,7 @@ void hashtable_new_test(void)
     {
         mock_params.malloc_null = false;
         mock_params.calloc_null = true;
-        const size_t table_size = 5;
+        register const size_t table_size = 5;
         HashTable* hashTable = hashTable_new(table_size);
 
         assert(hashTable == NULL);

@@ -8,7 +8,7 @@ NodeList* nodeList_new(void* data)
         return NULL;
     }
 
-    NodeList* head = malloc(sizeof(NodeList));
+    NodeList* head = malloc(sizeof(*head));
     if (head == NULL)
     {
         return NULL;
@@ -43,7 +43,7 @@ void nodeList_delete(NodeList** head)
 }
 
 // double pointer to NodeList since we want to overwright the head
-void nodeList_insert(NodeList** head, void* data)
+void nodeList_insert(NodeList** restrict head, void* restrict data)
 {
     if (*head == NULL || data == NULL)
     {
@@ -63,7 +63,7 @@ void nodeList_insert(NodeList** head, void* data)
     *head = newNode;
 }
 
-void nodeList_node_delete(NodeList** head, void* data)
+void nodeList_node_delete(NodeList** restrict head, void* restrict data)
 {
     if (*head == NULL || data == NULL)
     {
@@ -101,21 +101,3 @@ void nodeList_node_delete(NodeList** head, void* data)
     free(currentNode);
     currentNode = NULL;
 }
-
-/*
-void nodeList_printNodes(NodeList* head)
-{
-    if (head == NULL)
-    {
-        return;
-    }
-
-    NodeList* headCopy = head;
-
-    while(headCopy != NULL)
-    {
-        printf("%s\n", headCopy->record->value);
-        headCopy = headCopy->next;
-    } 
-}
-*/

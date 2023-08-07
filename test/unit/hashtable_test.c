@@ -17,8 +17,8 @@ void hashtable_record_new_test(void)
 {
     // Incorrect key, should return NULL
     {
-        const char* key = NULL;
-        const char* val = "example";
+        register const char* key = NULL;
+        register const char* val = "example";
         Record* record = record_new(key, val);
 
         assert(record == NULL);
@@ -26,8 +26,8 @@ void hashtable_record_new_test(void)
 
     // Incorrect value, should return NULL
     {
-        const char* key = "someKey";
-        const char* val = NULL;
+        register const char* key = "someKey";
+        register const char* val = NULL;
         Record* record = record_new(key, val);
 
         assert(record == NULL);
@@ -35,8 +35,8 @@ void hashtable_record_new_test(void)
 
     // Incorrect both arguments, should return NULL
     {
-        const char* key = NULL;
-        const char* val = NULL;
+        register const char* key = NULL;
+        register const char* val = NULL;
         Record* record = record_new(key, val);
 
         assert(record == NULL);
@@ -44,8 +44,8 @@ void hashtable_record_new_test(void)
 
     // Both arguments correct, check if record is properly filled
     {
-        const char* key = "exampKey";
-        const char* val = "someValue";
+        register const char* key = "exampKey";
+        register const char* val = "someValue";
         Record* record = record_new(key, val);
 
         assert(record != NULL);
@@ -61,14 +61,14 @@ void hashtable_new_test(void)
 {
     // Passed size is 0, so hash table should not be created (return NULL)
     {
-        const size_t invalid_table_size = 0;
+        register const size_t invalid_table_size = 0;
         HashTable* hashTable = hashTable_new(invalid_table_size);
         assert(hashTable == NULL);
     }
 
     // Correct argument, check if eveything has been properly filled
     {
-        const size_t table_size = 5;
+        register const size_t table_size = 5;
         HashTable* hashTable = hashTable_new(table_size);
 
         assert(hashTable != NULL);
@@ -91,9 +91,9 @@ void hashtable_insert_test(void)
 {
     // Check incorrect argument (bad key)
     {
-        const size_t table_size = 1;
-        const char* key = NULL;
-        const char* val = "valOne";
+        register const size_t table_size = 1;
+        register const char* key = NULL;
+        register const char* val = "valOne";
 
         HashTable* ht = hashTable_new(table_size);
         hashTable_insert(ht, key, val);     
@@ -110,9 +110,9 @@ void hashtable_insert_test(void)
 
     // Check incorrect argument (bad value)
     {
-        const size_t table_size = 1;
-        const char* key = "keyOne";
-        const char* val = NULL;
+        register const size_t table_size = 1;
+        register const char* key = "keyOne";
+        register const char* val = NULL;
 
         HashTable* ht = hashTable_new(table_size);
         hashTable_insert(ht, key, val);     
@@ -129,9 +129,9 @@ void hashtable_insert_test(void)
 
     // Check correct insertion of one element
     {
-        const size_t table_size = 1;
-        const char* key = "keyOne";
-        const char* val = "valOne";
+        register const size_t table_size = 1;
+        register const char* key = "keyOne";
+        register const char* val = "valOne";
         HashTable* ht = hashTable_new(table_size);
 
         assert(ht->noOfElems == 0);
@@ -152,12 +152,12 @@ void hashtable_insert_test(void)
 
     // Check correct insertion of two elements
     {
-        const size_t table_size = 10;
+        register const size_t table_size = 10;
         size_t index = 0;
-        const char* key = "keyOne";
-        const char* val = "valOne";
-        const char* key2 = "keyTwo";
-        const char* val2 = "valTwo";
+        register const char* key = "keyOne";
+        register const char* val = "valOne";
+        register const char* key2 = "keyTwo";
+        register const char* val2 = "valTwo";
         HashTable* ht = hashTable_new(table_size);
 
         assert(ht->noOfElems == 0);
@@ -181,12 +181,12 @@ void hashtable_insert_test(void)
 
     // Check incorrect second insertion - hash table size exceeded
     {
-        const size_t table_size = 1;
+        register const size_t table_size = 1;
         size_t index = 0;
-        const char* key = "keyOne";
-        const char* val = "valOne";
-        const char* key2 = "keyTwo";
-        const char* val2 = "valTwo";
+        register const char* key = "keyOne";
+        register const char* val = "valOne";
+        register const char* key2 = "keyTwo";
+        register const char* val2 = "valTwo";
         HashTable* ht = hashTable_new(table_size);
 
         assert(ht->noOfElems == 0);
@@ -217,7 +217,7 @@ void hashtable_delete_record_test(void)
 {
     // Incorrect try of delete record - empty table
     {
-        const size_t table_size = 10;
+        register const size_t table_size = 10;
         HashTable* ht = hashTable_new(table_size);
 
         assert(ht->noOfElems == 0);
@@ -231,14 +231,14 @@ void hashtable_delete_record_test(void)
 
     // Incorrect try of delete record - wrong key
     {
-        const size_t table_size = 10;
-        const char* key = "keyOne";
-        const char* val = "valOne";
+        register const size_t table_size = 10;
+        register const char* key = "keyOne";
+        register const char* val = "valOne";
 
         HashTable* ht = hashTable_new(table_size);
         hashTable_insert(ht, key, val);
 
-        const size_t index = hash_function(key, ht->size);
+        register const size_t index = hash_function(key, ht->size);
 
         // Check if element has been added to hash table
         assert(ht->noOfElems == 1);
@@ -259,14 +259,14 @@ void hashtable_delete_record_test(void)
 
     // Check correct deletion of one element
     {
-        const size_t table_size = 10;
-        const char* key = "keyOne";
-        const char* val = "valOne";
+        register const size_t table_size = 10;
+        register const char* key = "keyOne";
+        register const char* val = "valOne";
 
         HashTable* ht = hashTable_new(table_size);
         hashTable_insert(ht, key, val);
 
-        const size_t index = hash_function(key, ht->size);
+        register const size_t index = hash_function(key, ht->size);
 
         // Check if element has been added to hash table
         assert(ht->noOfElems == 1);
@@ -283,19 +283,19 @@ void hashtable_delete_record_test(void)
 
     // Add 3 records to 20-elemets hashTable and then delete on of them
     {
-        const size_t table_size = 20;
-        const char* key = "keyOne";
-        const char* val = "valOne";
-        const char* key2 = "keyTwo";
-        const char* val2 = "valTwo";
-        const char* key3 = "keyThree";
-        const char* val3 = "valThree";
+        register const size_t table_size = 20;
+        register const char* key = "keyOne";
+        register const char* val = "valOne";
+        register const char* key2 = "keyTwo";
+        register const char* val2 = "valTwo";
+        register const char* key3 = "keyThree";
+        register const char* val3 = "valThree";
 
         HashTable* ht = hashTable_new(table_size);
 
-        const size_t index  = hash_function(key, ht->size);
-        const size_t index2 = hash_function(key2, ht->size);
-        const size_t index3 = hash_function(key3, ht->size);
+        register const size_t index  = hash_function(key, ht->size);
+        register const size_t index2 = hash_function(key2, ht->size);
+        register const size_t index3 = hash_function(key3, ht->size);
 
         hashTable_insert(ht, key, val);
         hashTable_insert(ht, key2, val2);
@@ -338,18 +338,18 @@ void hashtable_delete_record_test(void)
 
     // Delete elements from collision node list
     {
-        const size_t table_size = 3;
-        const char* key = "keyOne";
-        const char* val = "valOne";
-        const char* key2 = "keyTwo";
-        const char* val2 = "valTwo";
-        const char* key3 = "keyThr";
-        const char* val3 = "valThr";
+        register const size_t table_size = 3;
+        register const char* key = "keyOne";
+        register const char* val = "valOne";
+        register const char* key2 = "keyTwo";
+        register const char* val2 = "valTwo";
+        register const char* key3 = "keyThr";
+        register const char* val3 = "valThr";
         HashTable* ht = hashTable_new(table_size);
 
-        const size_t index = hash_function(key, ht->size);;
-        const size_t index2 = hash_function(key2, ht->size);;
-        const size_t index3 = hash_function(key3, ht->size);;
+        register const size_t index = hash_function(key, ht->size);;
+        register const size_t index2 = hash_function(key2, ht->size);;
+        register const size_t index3 = hash_function(key3, ht->size);;
 
         hashTable_insert(ht, key, val);
         hashTable_insert(ht, key2, val2);
@@ -426,19 +426,19 @@ void hashtable_hash_function_test(void)
 {
     // Add 3 records to 50-elemets hashTable and verify if hashFunction returns the proper index
     {
-        const size_t table_size = 50;
-        const char* key = "keyOne";
-        const char* val = "valOne";
-        const char* key2 = "keyTwo";
-        const char* val2 = "valTwo";
-        const char* key3 = "keyThree";
-        const char* val3 = "valThree";
+        register const size_t table_size = 50;
+        register const char* key = "keyOne";
+        register const char* val = "valOne";
+        register const char* key2 = "keyTwo";
+        register const char* val2 = "valTwo";
+        register const char* key3 = "keyThree";
+        register const char* val3 = "valThree";
 
         HashTable* ht = hashTable_new(table_size);
 
-        const size_t index  = hash_function(key, ht->size);
-        const size_t index2 = hash_function(key2, ht->size);
-        const size_t index3 = hash_function(key3, ht->size);
+        register const size_t index  = hash_function(key, ht->size);
+        register const size_t index2 = hash_function(key2, ht->size);
+        register const size_t index3 = hash_function(key3, ht->size);
 
         hashTable_insert(ht, key, val);
         hashTable_insert(ht, key2, val2);
@@ -470,17 +470,15 @@ void hashtable_collision_test(void)
 {
     // Add two records with different keys but which gave same index from hashing function
     {
-        const size_t table_size = 2;
-        const char* key = "keyOne";
-        const char* val = "valOne";
-        const char* key2 = "keyTwo";
-        const char* val2 = "valTwo";
-        size_t index = 3;
-        size_t index2 = 5;
+        register const size_t table_size = 2;
+        register const char* key = "keyOne";
+        register const char* val = "valOne";
+        register const char* key2 = "keyTwo";
+        register const char* val2 = "valTwo";
         HashTable* ht = hashTable_new(table_size);
 
         hashTable_insert(ht, key, val);
-        index = hash_function(key, ht->size);
+        register const size_t index = hash_function(key, ht->size);
 
         // Check statistics after adding first one
         assert(ht->noOfElems == 1);
@@ -491,7 +489,7 @@ void hashtable_collision_test(void)
         assert(ht->collisionList[1] == NULL);
 
         hashTable_insert(ht, key2, val2);
-        index2 = hash_function(key2, ht->size);
+        register const size_t index2 = hash_function(key2, ht->size);
 
         // Confirm that we have collision despites of using different keys
         assert(index == index2);
@@ -538,20 +536,17 @@ void hashtable_collision_test(void)
             collisionList[index].next.next  = NULL
     */
     {
-        const size_t table_size = 3;
-        const char* key = "keyOne";
-        const char* val = "valOne";
-        const char* key2 = "keyTwo";
-        const char* val2 = "valTwo";
-        const char* key3 = "keyThr";
-        const char* val3 = "valThr";
-        size_t index = 3;
-        size_t index2 = 5;
-        size_t index3 = 0;
+        register const size_t table_size = 3;
+        register const char* key = "keyOne";
+        register const char* val = "valOne";
+        register const char* key2 = "keyTwo";
+        register const char* val2 = "valTwo";
+        register const char* key3 = "keyThr";
+        register const char* val3 = "valThr";
         HashTable* ht = hashTable_new(table_size);
 
         hashTable_insert(ht, key, val);
-        index = hash_function(key, ht->size);
+        register const size_t index = hash_function(key, ht->size);
 
         // Check statistics after adding first one
         assert(ht->noOfElems == 1);
@@ -562,7 +557,7 @@ void hashtable_collision_test(void)
         assert(ht->collisionList[1] == NULL);
 
         hashTable_insert(ht, key2, val2);
-        index2 = hash_function(key2, ht->size);
+        register const size_t index2 = hash_function(key2, ht->size);
 
         // Confirm that we have collision despites of using different keys
         assert(index == index2);
@@ -587,7 +582,7 @@ void hashtable_collision_test(void)
         assert(firstNodeInCollision->next == NULL);
 
         hashTable_insert(ht, key3, val3);
-        index3 = hash_function(key3, ht->size);
+        register const size_t index3 = hash_function(key3, ht->size);
 
         // Confirm that we have collision despites of using different keys
         assert(index2 == index3);
@@ -629,11 +624,11 @@ void hashtable_search_test(void)
 {
     // Give search function incorrect key
     {
-        const size_t table_size = 10;
-        const char* keyNotUsed = "uselessKey";
+        register const size_t table_size = 10;
+        register const char* keyNotUsed = "uselessKey";
         HashTable* ht = hashTable_new(table_size);
 
-        char* val_searched = hashTable_search(ht, keyNotUsed);
+        register const char* val_searched = hashTable_search(ht, keyNotUsed);
 
         assert(val_searched == NULL);
 
@@ -642,18 +637,18 @@ void hashtable_search_test(void)
 
     // Search two values in 20-element hashtable
     {
-        const size_t table_size = 20;
-        const char* key = "keyOne";
-        const char* val = "valOne";
-        const char* key2 = "keyTwo";
-        const char* val2 = "valTwo";
+        register const size_t table_size = 20;
+        register const char* key = "keyOne";
+        register const char* val = "valOne";
+        register const char* key2 = "keyTwo";
+        register const char* val2 = "valTwo";
         HashTable* ht = hashTable_new(table_size);
 
         hashTable_insert(ht, key, val);
         hashTable_insert(ht, key2, val2);
 
-        char* val_searched = hashTable_search(ht, key);
-        char* val2_searched = hashTable_search(ht, key2);
+        register const char* val_searched = hashTable_search(ht, key);
+        register const char* val2_searched = hashTable_search(ht, key2);
 
         assert(strcmp(val, val_searched) == 0);
         assert(strcmp(val2, val2_searched) == 0);
@@ -663,16 +658,13 @@ void hashtable_search_test(void)
 
     // Search 3 values from keys which have collision
     {
-        const size_t table_size = 3;
-        const char* key = "keyOne";
-        const char* val = "valOne";
-        const char* key2 = "keyTwo";
-        const char* val2 = "valTwo";
-        const char* key3 = "keyThr";
-        const char* val3 = "valThr";
-        size_t index = 3;
-        size_t index2 = 5;
-        size_t index3 = 0;
+        register const size_t table_size = 3;
+        register const char* key = "keyOne";
+        register const char* val = "valOne";
+        register const char* key2 = "keyTwo";
+        register const char* val2 = "valTwo";
+        register const char* key3 = "keyThr";
+        register const char* val3 = "valThr";
         char* val_searched = NULL;
         char* val2_searched = NULL;
         char* val3_searched = NULL;
@@ -680,15 +672,15 @@ void hashtable_search_test(void)
 
         // Add first element
         hashTable_insert(ht, key, val);
-        index = hash_function(key, ht->size);
+        register const size_t index = hash_function(key, ht->size);
 
         // Search first value
-        val_searched = hashTable_search(ht, key);
+        val_searched = (char*)hashTable_search(ht, key);
         assert(strcmp(val, val_searched) == 0);
 
         // Add second element
         hashTable_insert(ht, key2, val2);
-        index2 = hash_function(key2, ht->size);
+        register const size_t index2 = hash_function(key2, ht->size);
 
         // Confirm that we have collision despites of using different keys
         assert(index == index2);
@@ -696,12 +688,12 @@ void hashtable_search_test(void)
         assert(ht->noOfElems == 2);
 
         // Search second value
-        val2_searched = hashTable_search(ht, key2);
+        val2_searched =  (char*)hashTable_search(ht, key2);
         assert(strcmp(val2, val2_searched) == 0);
 
         // Add third element
         hashTable_insert(ht, key3, val3);
-        index3 = hash_function(key3, ht->size);
+        register const size_t index3 = hash_function(key3, ht->size);
 
         // Confirm that we have collision despites of using different keys
         assert(index2 == index3);
@@ -709,13 +701,13 @@ void hashtable_search_test(void)
         assert(ht->noOfElems == 3);
 
         // Search third value
-        val3_searched = hashTable_search(ht, key3);
+        val3_searched = (char*)hashTable_search(ht, key3);
         assert(strcmp(val3, val3_searched) == 0);
 
         // Once again search each element to check if moving data in node list doesn't impacted the result
-        val_searched = hashTable_search(ht, key);
-        val2_searched = hashTable_search(ht, key2);
-        val3_searched = hashTable_search(ht, key3);
+        val_searched = (char*)hashTable_search(ht, key);
+        val2_searched = (char*)hashTable_search(ht, key2);
+        val3_searched = (char*)hashTable_search(ht, key3);
         assert(strcmp(val, val_searched) == 0);
         assert(strcmp(val2, val2_searched) == 0);
         assert(strcmp(val3, val3_searched) == 0);

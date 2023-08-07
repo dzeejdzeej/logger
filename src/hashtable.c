@@ -31,7 +31,7 @@ Record* record_new(const char* key, const char* value)
         return NULL;
     }
 
-    Record* record = malloc(sizeof(Record));
+    Record* record = malloc(sizeof(*record));
     if (record == NULL)
     {
         return NULL;
@@ -53,14 +53,14 @@ void record_delete(Record* record)
     free(record);
 }
 
-HashTable* hashTable_new(size_t size)
+HashTable* hashTable_new(const size_t size)
 {
     if (size < 1)
     {
         return NULL;
     }
 
-    HashTable* hashTable = malloc(sizeof(HashTable));
+    HashTable* hashTable = malloc(sizeof(*hashTable));
     if (hashTable == NULL)
     {
         return NULL;
@@ -69,14 +69,14 @@ HashTable* hashTable_new(size_t size)
     hashTable->size = size;
     hashTable->noOfElems = 0;
 
-    hashTable->records = calloc(hashTable->size, sizeof(Record*));
+    hashTable->records = calloc(hashTable->size, sizeof(*hashTable->records));
     if (hashTable->records == NULL)
     {
         free(hashTable);
         return NULL;
     }
 
-    hashTable->collisionList = calloc(hashTable->size, sizeof(NodeList*));
+    hashTable->collisionList = calloc(hashTable->size, sizeof(*hashTable->collisionList));
     if (hashTable->collisionList == NULL)
     {
         free(hashTable->records);
@@ -120,7 +120,7 @@ void hashTable_delete(HashTable* hashTable)
     free(hashTable);
 }
 
-void hashTable_print(HashTable* hashTable)
+void hashTable_print(const HashTable* hashTable)
 {
     if (hashTable == NULL)
     {
@@ -131,7 +131,7 @@ void hashTable_print(HashTable* hashTable)
     {
         if (hashTable->records[i] != NULL)
         {
-            printf("Index=%lu\tKey: %s, Value: %s\n",
+            printf("Index=%zu\tKey: %s, Value: %s\n",
                     i, 
                     hashTable->records[i]->key,
                     hashTable->records[i]->value);
@@ -169,7 +169,7 @@ void hashTable_insert(HashTable* hashTable, const char* key, const char* value)
         return;
     }
 
-    size_t index = hash_function(key, hashTable->size);
+    register const size_t index = hash_function(key, hashTable->size);
 
     if (hashTable->records[index] == NULL)
     {
@@ -200,7 +200,7 @@ void hashTable_delete_record(HashTable* hashTable, const char* key)
         return;
     }
 
-    const size_t index = hash_function(key, hashTable->size);
+    register const size_t index = hash_function(key, hashTable->size);
     if (hashTable->records[index] == NULL)
     {
         return;
@@ -258,14 +258,14 @@ void hashTable_delete_record(HashTable* hashTable, const char* key)
     }
 }
 
-char* hashTable_search(HashTable* hashTable, const char* key)
+const char* hashTable_search(const HashTable* hashTable, const char* key)
 {
     if (hashTable == NULL || key == NULL)
     {
         return NULL;
     }
 
-    size_t index = hash_function(key, hashTable->size);
+    register const size_t index = hash_function(key, hashTable->size);
 
     if (index == (size_t)-1)
     {
@@ -279,7 +279,7 @@ char* hashTable_search(HashTable* hashTable, const char* key)
 
     if (strcmp(hashTable->records[index]->key, key) == 0)
     {
-        return (char*) hashTable->records[index]->value;
+        return hashTable->records[index]->value;
     }
     else // collision case
     {
