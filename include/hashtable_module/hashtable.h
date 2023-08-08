@@ -6,8 +6,8 @@
 
 typedef struct Record
 {
-    const char* key;
-    const char* value;
+    char* key;
+    char* value;
 } Record;
 
 typedef struct HashTable

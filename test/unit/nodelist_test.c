@@ -29,6 +29,7 @@ void nodeList_new_test(void)
         assert(node->data == record);
         
         nodeList_delete(&node);
+        record_delete(record);
     }
 }
 
@@ -57,6 +58,7 @@ void nodeList_insert_test(void)
         assert(head == head_cpy);
         
         nodeList_delete(&head);
+        record_delete(record1);
     }
 
     // incorrect insert, both arguments NULL, head should remain NULL
@@ -92,6 +94,9 @@ void nodeList_insert_test(void)
         assert(head->data == record3);
 
         nodeList_delete(&head);
+        record_delete(record1);
+        record_delete(record2);
+        record_delete(record3);
     }
 }
 
@@ -125,6 +130,9 @@ void nodeList_node_delete_test(void)
         assert(node2->next == NULL);
 
         nodeList_delete(&head);
+        record_delete(record1);
+        record_delete(record2);
+        record_delete(record3);
     }
 
     // Delete secondly added node out of three
@@ -154,6 +162,9 @@ void nodeList_node_delete_test(void)
         assert(node1->next == NULL);
 
         nodeList_delete(&head);
+        record_delete(record1);
+        record_delete(record2);
+        record_delete(record3);
     }
 
     // Delete last added node (actually a head) out of three
@@ -177,12 +188,15 @@ void nodeList_node_delete_test(void)
         assert(node1->next == NULL);
 
         nodeList_node_delete(&head, record3);
+        record_delete(record3);
 
         assert(head == node2);
         assert(node2->next == node1);
         assert(node1->next == NULL);
 
         nodeList_delete(&head);
+        record_delete(record1);
+        record_delete(record2);
     }
 
 }

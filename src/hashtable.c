@@ -7,23 +7,11 @@
 static size_t hash_function(const char* key, size_t hashTableSize);
 static void handle_collision(HashTable* hashTable, size_t index, Record* record);
 
-static size_t hash_function(const char* key, size_t hashTableSize)
-{
-    if (key == NULL)
-    {
-        return (size_t)-1; // todo think about it could be better
-    }
-
-    size_t i = 0;
-
-    for (size_t j = 0; key[j]; j++)
-    {
-        i += (size_t)key[j];
-    }
-
-    return i % hashTableSize;
-}
-
+/*
+    Function: Record* record_new(const char* key, const char* value)
+        Allocates memory for Record structure and two char* chains within this.
+        Then copy key and value to just allocated memory and return pointer to Record.
+*/
 Record* record_new(const char* key, const char* value)
 {
     if (key == NULL || value == NULL)
@@ -37,12 +25,31 @@ Record* record_new(const char* key, const char* value)
         return NULL;
     }
 
-    record->key = key;
-    record->value = value;
+    record->key = malloc(strlen(key) + 1);
+    if (record->key == NULL)
+    {
+        free(record);
+        return NULL;
+    }
+
+    record->value = malloc(strlen(value) + 1);
+    if (record->value == NULL)
+    {
+        free(record->key);
+        free(record);
+        return NULL;
+    }
+
+    strcpy(record->key, key);
+    strcpy(record->value, value);
     
     return record;
 }
 
+/*
+    Function: void record_delete(Record* record)
+        Frees the key, value and whole Record instance.
+*/
 void record_delete(Record* record)
 {
     if (record == NULL)
@@ -50,9 +57,25 @@ void record_delete(Record* record)
         return;
     }
 
+    if (record->key != NULL)
+    {
+        free(record->key);
+    }
+
+    if (record->value != NULL)
+    {
+        free(record->value);
+    }
+
     free(record);
 }
 
+/*
+    Function: HashTable* hashTable_new(const size_t size)
+        Allocates the memory for HashTable structure instance.
+        Dependend on given size, it creates array of records and collision lists for new hash table.
+        Finally returns the pointer to just created hash table.
+*/
 HashTable* hashTable_new(const size_t size)
 {
     if (size < 1)
@@ -87,6 +110,11 @@ HashTable* hashTable_new(const size_t size)
     return hashTable;
 }
 
+/*
+    Function: void hashTable_delete(HashTable* hashTable)
+        Function is resbonsible for releasing whole memory related with given hash table.
+        It frees all records , collision lists (and its nodes if exists) and hash table itself.
+*/
 void hashTable_delete(HashTable* hashTable)
 {
     if (hashTable == NULL)
@@ -96,20 +124,22 @@ void hashTable_delete(HashTable* hashTable)
 
     for (size_t i = 0; i < hashTable->size; ++i)
     {
+        if (hashTable->collisionList[i] != NULL)
+        {
+            NodeList* current = hashTable->collisionList[i];
+            while (current != NULL)
+            {
+                Record* rec = (Record*)current->data;
+                record_delete(rec);
+                current = current->next;
+            }
+            nodeList_delete(&hashTable->collisionList[i]);
+        }
+
         if (hashTable->records[i] != NULL)
         {
             record_delete(hashTable->records[i]);
         }
-
-        if (hashTable->collisionList[i] != NULL)
-        {
-            nodeList_delete(&hashTable->collisionList[i]);
-        }
-    }
-
-    if (hashTable->records != NULL)
-    {
-        free(hashTable->records);
     }
 
     if (hashTable->collisionList != NULL)
@@ -117,9 +147,20 @@ void hashTable_delete(HashTable* hashTable)
         free(hashTable->collisionList);
     }
 
+    if (hashTable->records != NULL)
+    {
+        free(hashTable->records);
+    }
+
     free(hashTable);
 }
 
+/*
+    Function: void hashTable_print(const HashTable* hashTable)
+        This function prints all existing records (and collision lists if exists) within 
+        given hash table. Firstly it prints current index (only if there is a content
+        under that index), and then all data related with this index.
+*/
 void hashTable_print(const HashTable* hashTable)
 {
     if (hashTable == NULL)
@@ -150,6 +191,12 @@ void hashTable_print(const HashTable* hashTable)
     }
 }
 
+/*
+    Function: void hashTable_insert(HashTable* hashTable, const char* key, const char* value)
+        This function prints all existing records (and collision lists) within given hash table.
+        Firstly it prints current index (only if there is a content under that index),
+        and then all data related with this index.
+*/
 void hashTable_insert(HashTable* hashTable, const char* key, const char* value)
 {
     if (hashTable == NULL || key == NULL || value == NULL)
@@ -182,7 +229,14 @@ void hashTable_insert(HashTable* hashTable, const char* key, const char* value)
         // if there is a same key, just update data
         if (strcmp(key, hashTable->records[index]->key) == 0)
         {
-            hashTable->records[index]->value = value;
+            // Check if the new value has a different length than the old value, if yes change previously allocated block
+            if (strlen(value) != strlen(hashTable->records[index]->value))
+            {
+                record_delete(hashTable->records[index]);
+                hashTable->records[index] = record;
+            }
+
+            strcpy(hashTable->records[index]->value, value);
         }
         // in other case we got the collision (different keys gives same index)
         else
@@ -193,6 +247,11 @@ void hashTable_insert(HashTable* hashTable, const char* key, const char* value)
     }
 }
 
+/*
+    void hashTable_delete_record(HashTable* hashTable, const char* key)
+        Delete single record which refers to the given key.
+        If the key refers to the record in collision list, delete also a related node.
+*/
 void hashTable_delete_record(HashTable* hashTable, const char* key)
 {
     if (hashTable == NULL || key == NULL || hashTable->noOfElems < 1)
@@ -242,12 +301,14 @@ void hashTable_delete_record(HashTable* hashTable, const char* key)
         {
             hashTable->collisionList[index] = current->next;
             nodeList_node_delete(&head, record);
+            record_delete(record);
             hashTable->noOfElems--;
         }
         // If deleted element is not the head of the list
         else
         {
             nodeList_node_delete(&head, record);
+            record_delete(record);
             hashTable->noOfElems--;
         }
     }
@@ -258,6 +319,11 @@ void hashTable_delete_record(HashTable* hashTable, const char* key)
     }
 }
 
+/*
+    const char* hashTable_search(const HashTable* hashTable, const char* key)
+        Search hashtable to find record related with given key.
+        Returns the value of found record.
+*/
 const char* hashTable_search(const HashTable* hashTable, const char* key)
 {
     if (hashTable == NULL || key == NULL)
@@ -298,6 +364,33 @@ const char* hashTable_search(const HashTable* hashTable, const char* key)
     }
 }
 
+/*
+    static size_t hash_function(const char* key, size_t hashTableSize)
+        The algorithm of generating index based on given key.
+        Should not be used by user.
+*/
+static size_t hash_function(const char* key, size_t hashTableSize)
+{
+    if (key == NULL)
+    {
+        return (size_t)-1; // todo think about it could be better
+    }
+
+    size_t i = 0;
+
+    for (size_t j = 0; key[j]; j++)
+    {
+        i += (size_t)key[j];
+    }
+
+    return i % hashTableSize;
+}
+
+/*
+    static void handle_collision(HashTable* hashTable, size_t index, Record* record)
+        Helper function to handles the collision case.
+        Should not be used by user.
+*/
 static void handle_collision(HashTable* hashTable, size_t index, Record* record)
 {
     if (hashTable == NULL || record == NULL)

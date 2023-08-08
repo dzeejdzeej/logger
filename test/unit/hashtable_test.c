@@ -210,6 +210,40 @@ void hashtable_insert_test(void)
 
         hashTable_delete(ht);
     }
+
+    // Check correct insertion of two elements with the same key (second should replace first)
+    {
+        register const size_t table_size = 5;
+        register const char* key = "keyOne";
+        register const char* val = "valOne";
+        register const char* val2 = "valReplaced";
+        HashTable* ht = hashTable_new(table_size);
+
+        register const size_t index = hash_function(key, ht->size);
+
+        assert(ht->noOfElems == 0);
+        assert(ht->records[index] == NULL);
+        assert(ht->collisionList[index] == NULL);
+
+        hashTable_insert(ht, key, val);
+
+        // Check if element has been added to hash table
+        assert(ht->noOfElems == 1);
+        assert(ht->records[index] != NULL);
+        assert(strcmp(ht->records[index]->key, key) == 0);
+        assert(strcmp(ht->records[index]->value, val) == 0);
+        assert(ht->collisionList[index] == NULL);
+
+        hashTable_insert(ht, key, val2);
+        // Check if element has been replaced
+        assert(ht->noOfElems == 1);
+        assert(ht->records[index] != NULL);
+        assert(strcmp(ht->records[index]->key, key) == 0);
+        assert(strcmp(ht->records[index]->value, val2) == 0);
+        assert(ht->collisionList[index] == NULL);
+
+        hashTable_delete(ht);
+    }
 }
 
 // Test function: void hashTable_delete_record(HashTable* hashTable, const char* key)

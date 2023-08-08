@@ -34,7 +34,6 @@ void nodeList_delete(NodeList** head)
     while (current != NULL)
     {
         next = current->next;
-        free(current->data);
         free(current);
         current = next;
     }
@@ -97,7 +96,6 @@ void nodeList_node_delete(NodeList** restrict head, void* restrict data)
         previousNode->next = currentNode->next;
     }
 
-    free(currentNode->data);
     free(currentNode);
     currentNode = NULL;
 }
